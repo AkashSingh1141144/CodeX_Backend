@@ -1,0 +1,16 @@
+{
+  "name": "hello_backend",
+  "version": "1.0.0",
+  "description": "this is basic backend that i have learned today",
+  "license": "ISC",
+  "author": "akash kumar singh",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0"
+  }
+}

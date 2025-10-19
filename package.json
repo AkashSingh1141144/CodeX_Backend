@@ -1,11 +1,19 @@
 {
-  "name": "backend",
+  "name": "basic_backend",
   "version": "1.0.0",
   "description": "a basic app to deploy",
   "keywords": [
     "node",
     "learning"
   ],
+  "homepage": "https://github.com/AkashSingh1141144/CodeX_Backend#readme",
+  "bugs": {
+    "url": "https://github.com/AkashSingh1141144/CodeX_Backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AkashSingh1141144/CodeX_Backend.git"
+  },
   "license": "ISC",
   "author": "akash singh",
   "type": "commonjs",
@@ -16,5 +24,6 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.1.0"
-  }
+  },
+  "devDependencies": {}
 }

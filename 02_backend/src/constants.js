@@ -1,0 +1,1 @@
+export const Database_Name = process.env.Database_Name

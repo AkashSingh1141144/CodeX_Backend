@@ -1,16 +1,15 @@
 {
-  "name": "04_backend",
+  "name": "05_backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "user and video models with hooks and JWT",
+  "license": "ISC",
+  "author": "Akash kumar singh",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
     "format": "prettier --write ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",

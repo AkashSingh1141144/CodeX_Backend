@@ -1,9 +1,9 @@
-##🚀 Backend Learning Repository
+# 🚀 Backend Learning Repository
 
 A complete, structured, and practical journey to mastering Backend Development using Node.js, Express.js, and MongoDB.
 This repository contains all code, notes, utilities, and mini-projects created during my backend learning process.
 
-📌 Table of Contents
+# 📌 Table of Contents
 
 About the Repository   
 
@@ -29,7 +29,7 @@ Author
 
 
 
-📖 About the Repository
+# 📖 About the Repository
 
 This repository documents my complete journey of learning backend development with a real-world, production-level approach:
 
@@ -43,7 +43,7 @@ Reusable utilities
 
 The main goal is to build strong backend fundamentals and advanced concepts used in real production systems.
 
-🛠️ Tech Stack
+# 🛠️ Tech Stack
 Technology	Purpose
 Node.js	JavaScript Runtime
 Express.js	Web Framework
@@ -57,8 +57,8 @@ Postman / Thunder Client
 
 
 
-📘 Topics Covered
-✔ Backend Fundamentals
+# 📘 Topics Covered
+## ✔ Backend Fundamentals
 
 How servers work
 
@@ -68,7 +68,7 @@ Routing & Middleware
 
 MVC pattern
 
-✔ Node.js & Express
+## ✔ Node.js & Express
 
 Express server setup
 
@@ -80,7 +80,7 @@ Centralized error handler
 
 Modular routing
 
-✔ MongoDB & Mongoose
+##✔ MongoDB & Mongoose
 
 Schemas & models
 
@@ -90,7 +90,7 @@ Validation
 
 Aggregation
 
-✔ Authentication & Authorization
+## ✔ Authentication & Authorization
 
 Register/Login
 
@@ -100,7 +100,7 @@ Password hashing
 
 Protected routes
 
-✔ File Upload (Cloudinary)
+## ✔ File Upload (Cloudinary)
 
 Multer for local handling
 
@@ -110,7 +110,7 @@ Image validation
 
 Public/private URLs
 
-✔ Reusable Utilities
+## ✔ Reusable Utilities
 
 ApiResponse class
 
@@ -120,7 +120,7 @@ asyncHandler wrapper
 
 Database connection manager
 
-✔ Production-Level Concepts
+## ✔ Production-Level Concepts
 
 ENV configuration
 

@@ -166,9 +166,14 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const { email, username, password } = req.body;
 
-  if (!username || !email) {
-    throw new ApiError(400, 'username or password is required');
+
+  if (!username && !email) {
+    throw new ApiError(400, "username or email is required")
   }
+
+  // if (!username || !email) {
+  //   throw new ApiError(400, 'username or password is required');
+  // }
 
   const user = await User.findOne({
     $or: [{ username }, { email }],
@@ -193,6 +198,8 @@ const loginUser = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: true
   }
+
+  console.log(`🎉 User Logged In Successfully: ${loggedInUser.username}`);
 
   return res
   .status(200)
@@ -227,6 +234,8 @@ const logoutUser = asyncHandler( async(req, res) => {
     httpOnly: true,
     secure: true
   }
+
+console.log(`🎉 User Logged Out  Successfully !`);
 
   return res
   .status(200)

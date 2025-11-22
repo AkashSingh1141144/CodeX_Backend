@@ -2,67 +2,95 @@
 // Router ek mini-application ki tarah hota hai jisme hum alag-alag routes define kar sakte hain
 import { Router } from "express";
 
-// 📌 registerUser controller import kar rahe hain
-// Controller wo function hota hai jo actual logic handle karta hai
-// Jaise: validation, DB me save karna, cloudinary upload, error throw, response send karna etc.
-import { loginUser, logoutUser, registerUser } from "../controllers/user.controller.js";
+// 📌 User Controllers import
+// Controllers wo functions hote hain jo actual business logic handle karte hain
+// Jaise:
+// - Input validation
+// - Password hashing
+// - Cloudinary image upload
+// - Database me save/update/find karna
+// - Token generate/send karna
+// - Error handling
+import { 
+    loginUser, 
+    logoutUser, 
+    registerUser, 
+    refreshAccessToken 
+} from "../controllers/user.controller.js";
 
 // 📌 Multer middleware import ho raha hai
-// Multer ka kaam hota hai incoming form-data me se files ko extract karna
-// Yahi middleware avatar aur coverImage ki files ko handle karega
+// Multer form-data me se files (avatar/coverImage) extract karta hai
+// Yahi images ko Cloudinary me upload karne ke liye controller ko deta hai
 import { upload } from "../middlewares/multer.middleware.js";
+
+// 📌 verifyJWT middleware
+// Ye token verify karke user ko authenticate karta hai
+// Jo routes secure hone chahiye unme verifyJWT ka use hota hai
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 
 // 📌 Ek naya router object banaya
-// Is router me hum users se related routes maintain karenge
+// Isme hum users se related saare routes maintain karenge
 const router = Router();
 
 
 // 🛣  /register route (POST)
-// Yaha hum user ke registration ka complete flow handle karenge
+// Yaha hum user ka complete registration process handle karte hain
 router.route('/register').post(
 
-	// 🧩 Multer middleware — upload.fields()
-	// Jab user form submit karega aur usme avatar ya coverImage file hogi
-	// To sabse pehle ye middleware run hoga BEFORE controller
+    // 🧩 Multer middleware — upload.fields()
+    // Ye step controller se pehle run hota hai
+    // Iska kaam sirf files ko extract karna hota hai
+    // Agar form-data me avatar/coverImage aaye to vo yaha se pass honge
+    
+    upload.fields([
+        { 
+            // 👇 Field name exact same hona chahiye jo frontend bhejega
+            name: 'avatar', 
+            // Maximum 1 file allow — single image
+            maxCount: 1 
+        },
+        { 
+            name: 'coverImage', 
+            maxCount: 1 
+        }
+    ]),
 
-	// upload.fields() ka matlab hai hum multiple file fields allow kar rahe hain
-	// Har field ka naam hona chahiye:
-	//  - avatar: ek file
-	//  - coverImage: ek file
-	upload.fields([
-		{ 
-			// 👇 Field ka exact name jaisa frontend bhejega
-			name: 'avatar', 
-			// Maximum 1 file allowed
-			maxCount: 1 
-		},
-		{ 
-			name: 'coverImage', 
-			maxCount: 1 
-		}
-	]),
-
-	// 🧠 Multer ke baad controller run hota hai
-	// registerUser ko ab req.body + req.files dono milenge
-	//  req.files.avatar → actual avatar file
-	//  req.files.coverImage → actual cover image file
-	// Controller yaha:
-	// - files ko Cloudinary me upload karega
-	// - password hash karega
-	// - DB me user create karega
-	// - sahi response bhejega
-	registerUser
+    // 🔥 Ab multer ke baad controller chalega
+    // Controller ko ab ye milta hai:
+    // - req.body (normal form inputs)
+    // - req.files.avatar
+    // - req.files.coverImage
+    //
+    // registerUser controller me ye kaam hota hai:
+    // - Avatar/coverImage Cloudinary me upload
+    // - Password hash
+    // - User ko DB me save
+    // - Tokens generate
+    // - Response return
+    registerUser
 );
 
 
+// 🛣 /login route (POST)
+// User login ke liye:
+// - Email check
+// - Password verify
+// - Access + Refresh token generate
+// - Cookies set
+router.route("/login").post(loginUser);
 
-router.route("/login").post(loginUser)
+
+// 🛣 /logout route (POST) — PROTECTED ROUTE
+// verifyJWT → Pehle token verify karega
+// logoutUser → cookies clear, refresh token invalidate
+router.route("/logout").post(verifyJWT, logoutUser);
 
 
-// TODO: secured routes
-router.route("/logout").post(verifyJWT, logoutUser)
+// 🛣 /refresh-token route (POST)
+// Refresh token valid hai to naya access token generate hoga
+router.route("refresh-token").post(refreshAccessToken);
+
+
 // 📤 Router ko export kar diya jisse hum ise app.js / index.js me use kar sakein
 export default router;
-

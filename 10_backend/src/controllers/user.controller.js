@@ -8,7 +8,6 @@
 //   jisse tumhara global error handler us error ko handle karta hai.
 import asyncHandler from '../utils/asyncHandler.utils.js';
 
-
 // ====================================================================
 // 📌 ApiError (Custom Error Class)
 // ====================================================================
@@ -17,14 +16,12 @@ import asyncHandler from '../utils/asyncHandler.utils.js';
 // → Iska fayda → har error ek standard format me jata hai.
 import { ApiError } from '../utils/ApiError.utils.js';
 
-
 // ====================================================================
 // 📌 User Model (MongoDB + Mongoose schema)
 // ====================================================================
 // Ye tumhare users collection ka schema + model represent karta hai.
 // Sare database related kaam Yahi se honge.
 import { User } from '../models/user.model.js';
-
 
 // ====================================================================
 // 📌 Cloudinary Upload Utility
@@ -34,7 +31,6 @@ import { User } from '../models/user.model.js';
 // uploadOnCloudinary("local/path") → { url: "...cloudinary-link..." }
 import { uploadOnCloudinary } from '../utils/cloudinary.utils.js';
 
-
 // ====================================================================
 // 📌 ApiResponse (Custom Success Response Format)
 // ====================================================================
@@ -42,13 +38,10 @@ import { uploadOnCloudinary } from '../utils/cloudinary.utils.js';
 // → Sab responses ek jaisa structure maintain karte hain.
 import { ApiResponse } from '../utils/ApiResponse.utils.js';
 
-
 // ====================================================================
 // 📌 JSON Web Token Library Import
 // ====================================================================
 import jwt from 'jsonwebtoken';
-
-
 
 // ====================================================================
 // 📌 Generate Access Token & Refresh Token Function
@@ -64,8 +57,8 @@ const generateAccessAndRefreshTokens = async (userId) => {
     const user = await User.findById(userId);
 
     // Step 2: Model methods se JWT tokens banao
-    const accessToken = user.generateAccessToken();       // Short life token
-    const refreshToken = user.generateRefreshToken();     // Long life token
+    const accessToken = user.generateAccessToken(); // Short life token
+    const refreshToken = user.generateRefreshToken(); // Long life token
 
     // Step 3: Refresh token ko DB me save karo
     user.refreshToken = refreshToken;
@@ -75,7 +68,6 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
     // Step 4: Tokens return
     return { accessToken, refreshToken };
-
   } catch (error) {
     throw new ApiError(
       500,
@@ -84,20 +76,19 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
-
-
 // ====================================================================
 // 🧠 CONTROLLER #1 — REGISTER USER
 // ====================================================================
 const registerUser = asyncHandler(async (req, res) => {
-
   // STEP 1: Client se incoming data
   const { username, email, password, fullName } = req.body;
 
   console.log('FILES RECEIVED BY MULTER:', req.files);
 
   // STEP 2: Validation — koi field empty nahi honi chahiye
-  if ([fullName, username, email, password].some((field) => field?.trim() === '')) {
+  if (
+    [fullName, username, email, password].some((field) => field?.trim() === '')
+  ) {
     throw new ApiError(400, 'All fields are required');
   }
 
@@ -159,18 +150,15 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, createdUser, 'User registered successfully'));
 });
 
-
-
 // ====================================================================
 // 🧠 CONTROLLER #2 — LOGIN USER
 // ====================================================================
 const loginUser = asyncHandler(async (req, res) => {
-
   const { email, username, password } = req.body;
 
   // STEP 1: Username OR Email required
   if (!username && !email) {
-    throw new ApiError(400, "username or email is required");
+    throw new ApiError(400, 'username or email is required');
   }
 
   // STEP 2: Find user
@@ -190,12 +178,13 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   // STEP 4: Generate tokens
-  const { accessToken, refreshToken } =
-    await generateAccessAndRefreshTokens(user._id);
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+    user._id
+  );
 
   // STEP 5: Remove sensitive fields
   const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken"
+    '-password -refreshToken'
   );
 
   // STEP 6: Cookie options
@@ -211,8 +200,8 @@ const loginUser = asyncHandler(async (req, res) => {
   // STEP 7: Send cookies + response
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie('accessToken', accessToken, options)
+    .cookie('refreshToken', refreshToken, options)
     .json(
       new ApiResponse(
         200,
@@ -221,18 +210,15 @@ const loginUser = asyncHandler(async (req, res) => {
           accessToken,
           refreshToken,
         },
-        "User logged In Successfully"
+        'User logged In Successfully'
       )
     );
 });
-
-
 
 // ====================================================================
 // 🧠 CONTROLLER #3 — LOGOUT USER
 // ====================================================================
 const logoutUser = asyncHandler(async (req, res) => {
-
   // Step 1: Logged-in user ka refresh token DB se delete
   await User.findByIdAndUpdate(
     req.user._id,
@@ -251,26 +237,23 @@ const logoutUser = asyncHandler(async (req, res) => {
   // Step 3: Token cookies clear
   return res
     .status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, {}, "User logged Out"));
+    .clearCookie('accessToken', options)
+    .clearCookie('refreshToken', options)
+    .json(new ApiResponse(200, {}, 'User logged Out'));
 });
-
-
 
 // ====================================================================
 // 🧠 CONTROLLER #4 — REFRESH ACCESS TOKEN
 // ====================================================================
 const refreshAccessToken = asyncHandler(async (req, res) => {
-
   // Step 1: Client ke cookie/body se token lo
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
 
   // Step 2: Refresh token required
   if (!incomingRefreshToken) {
-    throw new ApiError(401, "unauthorized request");
-  } // TODO: agar error hai to ! hata do 
+    throw new ApiError(401, 'unauthorized request');
+  } // TODO: agar error hai to ! hata do
 
   try {
     // Step 3: Validate/Decode token
@@ -283,12 +266,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     const user = await User.findById(decodedToken?._id);
 
     if (!user) {
-      throw new ApiError(401, "Invalid refresh token");
+      throw new ApiError(401, 'Invalid refresh token');
     }
 
     // Step 5: Compare refresh tokens
     if (incomingRefreshToken !== user?.refreshToken) {
-      throw new ApiError(401, "Refresh token expired or used");
+      throw new ApiError(401, 'Refresh token expired or used');
     }
 
     // Step 6: New tokens generate
@@ -303,23 +286,187 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     // Step 7: Set cookies
     return res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
+      .cookie('accessToken', accessToken, options)
+      .cookie('refreshToken', newRefreshToken, options)
       .json(
         new ApiResponse(
           200,
           { accessToken, refreshToken: newRefreshToken },
-          "Access Token refreshed"
+          'Access Token refreshed'
         )
       );
-
   } catch (error) {
-    throw new ApiError(401, error?.message || "Invalid refresh token");
+    throw new ApiError(401, error?.message || 'Invalid refresh token');
   }
 });
 
+// ====================================================================
+// 🧠 CONTROLLER #5 — CHANGE CURRENT PASSWORD
+// ====================================================================
+// ➤ Purpose:
+//    Logged-in user apna old password verify karke new password set kar sakta hai.
+//
+// ➤ Flow:
+//    1. Body se oldPassword & newPassword lo
+//    2. Current user fetch karo
+//    3. Old password verify karo
+//    4. New password save karo → hashing automatically
+//    5. Success response bhejo
+// ====================================================================
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await User.findById(req.user?._id);
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, 'Old password is incorrect');
+  }
+
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: true });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, 'Password changed successfully'));
+});
 
 
+// ====================================================================
+// 🧠 CONTROLLER #6 — GET CURRENT USER
+// ====================================================================
+// ➤ Purpose:
+//    Auth middleware ne req.user me current user attach kiya hota hai.
+//    Yaha se hum simply user return kar dete hain.
+//
+// ➤ Flow:
+//    1. req.user se user lo
+//    2. Response me bhej do
+// ====================================================================
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, 'Current user fetched successfully'));
+});
+
+
+// ====================================================================
+// 🧠 CONTROLLER #7 — UPDATE ACCOUNT DETAILS
+// ====================================================================
+// ➤ Purpose:
+//    User apna fullName aur email update kar sakta hai.
+//
+// ➤ Flow:
+//    1. Body se fullName & email lo
+//    2. Validate karo
+//    3. findByIdAndUpdate se update karo
+//    4. Password ko exclude rakho
+// ====================================================================
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { fullName, email } = req.body;
+
+  if (!fullName || !email) {
+    throw new ApiError(400, 'Full name and email are required');
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: { fullName, email } },
+    { new: true }
+  ).select('-password');
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, 'Account details updated successfully'));
+});
+
+
+// ====================================================================
+// 🧠 CONTROLLER #8 — UPDATE USER AVATAR
+// ====================================================================
+// ➤ Purpose:
+//    User apni profile image upload karega → Cloudinary par upload hogi →
+//    DB me avatar URL update hoga.
+//
+// ➤ Flow:
+//    1. Multer file path check
+//    2. Cloudinary upload
+//    3. Avatar URL DB me update
+//    4. Response me new URL
+// ====================================================================
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalPath = req.file?.path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, 'Avatar file is missing');
+  }
+
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+  if (!avatar.url) {
+    throw new ApiError(500, 'Error while uploading avatar');
+  }
+
+  await User.findByIdAndUpdate(
+    req.user?._id,
+    { $set: { avatar: avatar.url } },
+    { new: true }
+  ).select('-password');
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { avatar: avatar.url },
+        'User avatar updated successfully'
+      )
+    );
+});
+
+
+// ====================================================================
+// 🧠 CONTROLLER #9 — UPDATE USER COVER IMAGE
+// ====================================================================
+// ➤ Purpose:
+//    User cover image upload karega → Cloudinary par upload hogi →
+//    DB me coverImage update hoga.
+//
+// ➤ Flow:
+//    1. Multer se local path lo
+//    2. Cloudinary upload
+//    3. DB update
+//    4. Response return
+// ====================================================================
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+  const coverImageLocalPath = req.file?.path;
+
+  if (!coverImageLocalPath) {
+    throw new ApiError(400, 'Cover image file is missing');
+  }
+
+  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+  if (!coverImage.url) {
+    throw new ApiError(500, 'Error while uploading cover image');
+  }
+
+  await User.findByIdAndUpdate(
+    req.user?._id,
+    { $set: { coverImage: coverImage.url } },
+    { new: true }
+  ).select('-password');
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { coverImage: coverImage.url },
+        'User cover image updated successfully'
+      )
+    );
+});
 // ====================================================================
 // 📤 EXPORT ALL CONTROLLERS
 // ====================================================================
@@ -328,4 +475,9 @@ export {
   loginUser,
   logoutUser,
   refreshAccessToken,
+  changeCurrentPassword,
+  getCurrentUser,
+  updateAccountDetails,
+  updateUserAvatar,
+  updateUserCoverImage,
 };
